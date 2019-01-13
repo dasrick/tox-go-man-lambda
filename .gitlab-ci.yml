@@ -1,0 +1,71 @@
+image: golang:1.11-stretch
+
+variables:
+  TARGET_SYSTEM: ${BUILD_TARGET_SYSTEM}
+  TARGET_ARCH: ${BUILD_TARGET_ARCH}
+  S3_PATH: ${S3_PATH}
+
+cache:
+  paths:
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
+    - vendor/
+
+stages:
+  - test
+  - build
+  - distribute
+
+#before_script:
+  #- mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
+  #- cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
+  #- ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
+  #- make dep
+
+before_script:
+  - go get -u github.com/golang/dep/cmd/dep
+  - mkdir -p $GOPATH/src
+  - cd $GOPATH/src
+  - ln -s $CI_PROJECT_DIR
+  - cd $CI_PROJECT_NAME
+  - dep ensure
+
+# ▼ templates ==========================================================================================================
+
+# environments (dev/staging/prod) --------------------------------------------------------------------------------------
+#.env_dev_template: &env_dev_template
+#  variables:
+#    AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
+#    AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
+#    AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
+#    S3_BUCKET: $DEV_S3_BUCKET
+#
+#.env_staging_template: &env_staging_template
+#  variables:
+#    AWS_DEFAULT_REGION: $STAGING_AWS_DEFAULT_REGION
+#    AWS_ACCESS_KEY_ID: $STAGING_AWS_ACCESS_KEY_ID
+#    AWS_SECRET_ACCESS_KEY: $STAGING_AWS_SECRET_ACCESS_KEY
+#    S3_BUCKET: $STAGING_S3_BUCKET
+#
+#.env_prod_template: &env_prod_template
+#  variables:
+#    AWS_DEFAULT_REGION: $PROD_AWS_DEFAULT_REGION
+#    AWS_ACCESS_KEY_ID: $PROD_AWS_ACCESS_KEY_ID
+#    AWS_SECRET_ACCESS_KEY: $PROD_AWS_SECRET_ACCESS_KEY
+#    S3_BUCKET: $PROD_S3_BUCKET
+
+# ▲ templates ==========================================================================================================
+
+test:
+  stage: test
+  script:
+#    - go test
+    - echo "no tests today"
+
+build:
+  stage: build
+  script:
+    - for CMD in `ls cmd`; do go build ./cmd/$CMD; done
