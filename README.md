@@ -1,3 +1,6 @@
+[![pipeline status](https://gitlab.com/tox-aws-terraform/tox-go-man-lambda/badges/master/pipeline.svg)](https://gitlab.com/tox-aws-terraform/tox-go-man-lambda/commits/master)
+[![coverage report](https://gitlab.com/tox-aws-terraform/tox-go-man-lambda/badges/master/coverage.svg)](https://gitlab.com/tox-aws-terraform/tox-go-man-lambda/commits/master)
+
 ***
 
 # tox-go-man-lambda
