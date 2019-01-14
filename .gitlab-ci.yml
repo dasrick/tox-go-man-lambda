@@ -19,21 +19,6 @@ stages:
   - build
   - distribute
 
-#before_script:
-  #- mkdir -p /go/src/gitlab.com/pantomath-io /go/src/_/builds
-  #- cp -r $CI_PROJECT_DIR /go/src/gitlab.com/pantomath-io/pantomath
-  #- ln -s /go/src/gitlab.com/pantomath-io /go/src/_/builds/pantomath-io
-  #- make dep
-
-before_script:
-  - apt-get update && apt-get install -y zip
-  - go get -u github.com/golang/dep/cmd/dep
-  - mkdir -p $GOPATH/src
-  - cd $GOPATH/src
-  - ln -s $CI_PROJECT_DIR
-  - cd $CI_PROJECT_NAME
-  - dep ensure
-
 # ▼ templates ==========================================================================================================
 
 # environments (dev/staging/prod) --------------------------------------------------------------------------------------
@@ -59,44 +44,53 @@ before_script:
     S3_BUCKET: $PROD_S3_BUCKET
 
 # distributions --------------------------------------------------------------------------------------------------------
-.dist_tag_template: &dist_tag_template
+.tpl_dist: &tpl_dist
   stage: distribute
-  tags:
-    - docker
-  image: garland/aws-cli-docker
-  cache: {}
-  dependencies:
-    - build
+    tags:
+      - docker
+    image: garland/aws-cli-docker
+    cache: {}
+    dependencies:
+      - build
+    #    only:
+    #      - tags
+    script:
+      #    - aws s3 cp *.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}.zip
+      - for CMD in `ls cmd`; do aws s3 cp ${CMD}.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}/${CMD}.zip; done
+
+.dist_tag_template: &dist_tag_template
+  <<: *tpl_dist
   only:
     - tags
-  script:
-#    - aws s3 cp *.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}.zip
-    - for CMD in `ls cmd`; do aws s3 cp ${CMD}.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}/${CMD}.zip; done
 
 .dist_branch_template: &dist_branch_template
-  stage: distribute
-  tags:
-    - docker
-  image: garland/aws-cli-docker
-  cache: {}
-  dependencies:
-    - build
+  <<: *tpl_dist
   only:
     - branches
-  script:
-#    - aws s3 cp *.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}.zip
-    - for CMD in `ls cmd`; do aws s3 cp ${CMD}.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}/${CMD}.zip; done
+
+# go before script -----------------------------------------------------------------------------------------------------
+.tpl_go_before_script: &tpl_go_before_script
+  before_script:
+    - apt-get update && apt-get install -y zip
+    - go get -u github.com/golang/dep/cmd/dep
+    - mkdir -p $GOPATH/src
+    - cd $GOPATH/src
+    - ln -s $CI_PROJECT_DIR
+    - cd $CI_PROJECT_NAME
+    - dep ensure
 
 # ▲ templates ==========================================================================================================
 
 # ▼ jobs ===============================================================================================================
 test:
+  <<: *tpl_go_before_script
   stage: test
   script:
-#    - go test
+    #    - go test
     - echo "no tests today"
 
 build:
+  <<: *tpl_go_before_script
   stage: build
   script:
     - GOOS=${TARGET_SYSTEM} GOARCH=${TARGET_ARCH}
