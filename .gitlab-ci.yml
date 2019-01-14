@@ -42,7 +42,7 @@ stages:
     AWS_ACCESS_KEY_ID: $PROD_AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $PROD_AWS_SECRET_ACCESS_KEY
     S3_BUCKET: $PROD_S3_BUCKET
-y<
+
 # go before script -----------------------------------------------------------------------------------------------------
 .tpl_go_before_script: &tpl_go_before_script
   before_script:
