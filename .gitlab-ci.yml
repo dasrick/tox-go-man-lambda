@@ -22,53 +22,27 @@ stages:
 # ▼ templates ==========================================================================================================
 
 # environments (dev/staging/prod) --------------------------------------------------------------------------------------
-.env_dev_template: &env_dev_template
+.tpl_env_dev: &tpl_env_dev
   variables:
     AWS_DEFAULT_REGION: $DEV_AWS_DEFAULT_REGION
     AWS_ACCESS_KEY_ID: $DEV_AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $DEV_AWS_SECRET_ACCESS_KEY
     S3_BUCKET: $DEV_S3_BUCKET
 
-.env_staging_template: &env_staging_template
+.tpl_env_staging: &tpl_env_staging
   variables:
     AWS_DEFAULT_REGION: $STAGING_AWS_DEFAULT_REGION
     AWS_ACCESS_KEY_ID: $STAGING_AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $STAGING_AWS_SECRET_ACCESS_KEY
     S3_BUCKET: $STAGING_S3_BUCKET
 
-.env_prod_template: &env_prod_template
+.tpl_env_prod: &tpl_env_prod
   variables:
     AWS_DEFAULT_REGION: $PROD_AWS_DEFAULT_REGION
     AWS_ACCESS_KEY_ID: $PROD_AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY: $PROD_AWS_SECRET_ACCESS_KEY
     S3_BUCKET: $PROD_S3_BUCKET
-
-# distributions --------------------------------------------------------------------------------------------------------
-.tpl_dist: &tpl_dist
-  stage: distribute
-  tags:
-    - docker
-  image: garland/aws-cli-docker
-#  cache: {}
-  dependencies:
-    - build
-  #    only:
-  #      - tags
-  script:
-    #    - aws s3 cp *.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}.zip
-    - ls -lat
-    - for CMD in `ls cmd`; do aws s3 cp ${CMD}.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}/${CMD}.zip; done
-
-.dist_tag_template: &dist_tag_template
-  <<: *tpl_dist
-  only:
-    - tags
-
-.dist_branch_template: &dist_branch_template
-  <<: *tpl_dist
-  only:
-    - branches
-
+y<
 # go before script -----------------------------------------------------------------------------------------------------
 .tpl_go_before_script: &tpl_go_before_script
   before_script:
@@ -79,6 +53,30 @@ stages:
     - ln -s $CI_PROJECT_DIR
     - cd $CI_PROJECT_NAME
     - dep ensure
+
+# distributions --------------------------------------------------------------------------------------------------------
+.tpl_dist: &tpl_dist
+  stage: distribute
+  tags:
+    - docker
+  image: garland/aws-cli-docker
+  cache: {}
+  dependencies:
+    - build
+  script:
+    - for CMD in `ls cmd`; do aws s3 cp ${CMD}.zip s3://${S3_BUCKET}/${S3_PATH}/${CI_COMMIT_REF_SLUG}/${CMD}.zip; done
+    - echo "copy ... DONE"
+
+.tpl_dist_tag: &tpl_dist_tag
+  <<: *tpl_dist
+  only:
+    - tags
+
+.tpl_dist_branch: &tpl_dist_branch
+  <<: *tpl_dist
+  only:
+    - branches
+
 
 # ▲ templates ==========================================================================================================
 
@@ -96,7 +94,9 @@ build:
   script:
     - GOOS=${TARGET_SYSTEM} GOARCH=${TARGET_ARCH}
     - for CMD in `ls cmd`; do go build ./cmd/$CMD; done
+    - echo "build ... DONE"
     - for CMD in `ls cmd`; do zip $CMD.zip $CMD; done
+    - echo "compress ... DONE"
     - ls -lat
   artifacts:
     name: ${CI_COMMIT_REF_SLUG}
@@ -104,20 +104,20 @@ build:
       - ./*.zip
 
 dist:tag:dev:
-  <<: *dist_tag_template
-  <<: *env_dev_template
+  <<: *tpl_dist_tag
+  <<: *tpl_env_dev
 
 dist:tag:staging:
-  <<: *dist_tag_template
-  <<: *env_staging_template
+  <<: *tpl_dist_tag
+  <<: *tpl_env_staging
 
 dist:tag:prod:
-  <<: *dist_tag_template
-  <<: *env_prod_template
+  <<: *tpl_dist_tag
+  <<: *tpl_env_prod
 
 # branch distribution only on DEV for development
 dist:branch:dev:
-  <<: *dist_branch_template
-  <<: *env_dev_template
+  <<: *tpl_dist_branch
+  <<: *tpl_env_dev
 
 # ▲ jobs ===============================================================================================================
