@@ -28,10 +28,11 @@ func main() {
 func HandleRequest(s3Event events.S3Event) error {
 	pathIncoming := os.Getenv("S3_PATH_INCOMING")
 	log.Println(pathIncoming)
+
 	pathUncompressed := os.Getenv("S3_PATH_UNCOMPRESSED")
 	log.Println(pathUncompressed)
+
 	for _, rec := range s3Event.Records {
-		//s3 := record.S3
 		key := rec.S3.Object.Key
 		log.Println(key)
 
@@ -59,6 +60,10 @@ func HandleRequest(s3Event events.S3Event) error {
 		//inputContent, _ := os.Open(InputFile)
 		//r := csv.NewReader(bufio.NewReader(body))
 		//r := csv.NewReader(bytes.NewBuffer(body))
+
+		log.Println(obj)
+		log.Println(obj.Body)
+
 		r := csv.NewReader(obj.Body)
 		r.Comma = ';'
 		r.Comment = '#'
