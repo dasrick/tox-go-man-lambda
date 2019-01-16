@@ -86,7 +86,8 @@ test:
   stage: test
   script:
 #    - for CMD in `ls cmd`; do go test ./cmd/$CMD; done
-    - echo "tests ... DONE"tea
+#    - echo "tests ... DONE"
+    - echo "... no milk today .."
 
 build:
   <<: *tpl_go_before_script
