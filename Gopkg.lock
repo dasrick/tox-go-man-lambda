@@ -14,12 +14,55 @@
   revision = "928161204cad89472f9e6b5dd49ce16bc91230de"
   version = "v1.8.1"
 
+[[projects]]
+  digest = "1:8d6d831ee02799e85d0e3ac7151cad2abc9bfad68260e088d1a30ad7e523842b"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/credentials",
+    "aws/endpoints",
+    "aws/request",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/s3err",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+    "service/s3/s3iface",
+  ]
+  pruneopts = "UT"
+  revision = "3afa899153ab972b5e6bf2552721b677e3fdaeb5"
+  version = "v1.16.20"
+
+[[projects]]
+  digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c2b33e84"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/aws/aws-sdk-go/service/s3/s3iface",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
