@@ -15,7 +15,7 @@
   version = "v1.8.1"
 
 [[projects]]
-  digest = "1:8d6d831ee02799e85d0e3ac7151cad2abc9bfad68260e088d1a30ad7e523842b"
+  digest = "1:ff5b7c3aecdc489345eedf7be49c3879ff19296c20f830acd8ed4ded094e1ec1"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -23,14 +23,24 @@
     "aws/awsutil",
     "aws/client",
     "aws/client/metadata",
+    "aws/corehandlers",
     "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
     "aws/endpoints",
     "aws/request",
+    "aws/session",
     "aws/signer/v4",
     "internal/ini",
     "internal/s3err",
     "internal/sdkio",
     "internal/sdkrand",
+    "internal/sdkuri",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/eventstream",
@@ -41,11 +51,11 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/s3",
-    "service/s3/s3iface",
+    "service/sts",
   ]
   pruneopts = "UT"
-  revision = "3afa899153ab972b5e6bf2552721b677e3fdaeb5"
-  version = "v1.16.20"
+  revision = "a0a1669c06da522317116cc7624ac257d9c5fdfd"
+  version = "v1.16.21"
 
 [[projects]]
   digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
@@ -61,8 +71,8 @@
     "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
-    "github.com/aws/aws-sdk-go/service/s3/s3iface",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
