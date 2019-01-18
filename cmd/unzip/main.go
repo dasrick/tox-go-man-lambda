@@ -6,7 +6,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -16,28 +15,28 @@ import (
 )
 
 func main() {
-	lambda.Start(HandleRequest)
+	//lambda.Start(HandleRequest)
 
-	//testRecord := events.S3EventRecord{
-	//	EventVersion: "2.0",
-	//	EventSource:  "aws:s3",
-	//	AWSRegion:    "eu-west-1",
-	//	//EventTime: "1970-01-01T00:00:00.000Z",
-	//	EventName: "ObjectCreated:Put",
-	//	S3: events.S3Entity{
-	//		Bucket: events.S3Bucket{
-	//			Name: "man-deveh-stash",
-	//			Arn:  "arn:aws:s3:::man-deveh-stash",
-	//		},
-	//		Object: events.S3Object{
-	//			Key: "incoming/Datei2_Haus_2018_short.csv.gz",
-	//		},
-	//	},
-	//}
-	//err := HandleRequest(events.S3Event{Records: []events.S3EventRecord{testRecord}})
-	//if err != nil {
-	//	log.Panicf("ein lustiger fehler:\n %s\n", err)
-	//}
+	testRecord := events.S3EventRecord{
+		EventVersion: "2.0",
+		EventSource:  "aws:s3",
+		AWSRegion:    "eu-west-1",
+		//EventTime: "1970-01-01T00:00:00.000Z",
+		EventName: "ObjectCreated:Put",
+		S3: events.S3Entity{
+			Bucket: events.S3Bucket{
+				Name: "man-deveh-stash",
+				Arn:  "arn:aws:s3:::man-deveh-stash",
+			},
+			Object: events.S3Object{
+				Key: "incoming/Datei2_Haus_2018.csv.gz",
+			},
+		},
+	}
+	err := HandleRequest(events.S3Event{Records: []events.S3EventRecord{testRecord}})
+	if err != nil {
+		log.Panicf("ein lustiger fehler:\n %s\n", err)
+	}
 }
 
 func HandleRequest(s3Event events.S3Event) error {
@@ -98,7 +97,7 @@ func processS3Record(s3record events.S3EventRecord) error {
 		}
 		// drop first line because of header rows
 		if lineCount <= 0 {
-			lineCount += 1
+			lineCount++
 			log.Println("Skip header row")
 			continue
 		}
@@ -112,7 +111,7 @@ func processS3Record(s3record events.S3EventRecord) error {
 		// now its time to do something with this object
 
 		// ...
-		lineCount += 1
+		lineCount++
 	}
 
 	// some output for cloudwatch

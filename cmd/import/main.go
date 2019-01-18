@@ -102,7 +102,7 @@ func processS3Record(s3record events.S3EventRecord) error {
 		}
 		// drop first line because of header rows
 		if lineCount <= 0 {
-			lineCount += 1
+			lineCount++
 			log.Println("Skip header row")
 			continue
 		}
@@ -115,7 +115,7 @@ func processS3Record(s3record events.S3EventRecord) error {
 		// now its time to do something with this object
 
 		// ...
-		lineCount += 1
+		lineCount++
 	}
 
 	// some output for cloudwatch
