@@ -114,6 +114,7 @@ func processS3Record(s3record events.S3EventRecord) error {
 
 		}
 		// now its time to do something with this object
+		// a good idea would be a SNS event
 
 		// ...
 		lineCount++
@@ -122,6 +123,15 @@ func processS3Record(s3record events.S3EventRecord) error {
 	// some output for cloudwatch
 	log.Printf("PROCESSED LINES %s\n", strconv.Itoa(lineCount))
 	log.Printf("FINISH PROCESSING %s\n", key)
+
+	// delete processed s3record
+	_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("error while DeleteObject %s from S3: %s\n", key, err)
+	}
 
 	return nil
 }
