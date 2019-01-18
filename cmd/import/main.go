@@ -70,6 +70,9 @@ func processS3Record(s3record events.S3EventRecord) error {
 	bucket := s3record.S3.Bucket.Name
 	region := s3record.AWSRegion
 
+	// some output for cloudwatch
+	log.Printf("start processing %s\n", key)
+
 	// create session
 	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(region)}))
 	svc := s3.New(sess)
@@ -105,12 +108,19 @@ func processS3Record(s3record events.S3EventRecord) error {
 		}
 		// generate object from record
 		rowObject := generateRowObject(record)
-		log.Println(rowObject.HaID)
+		//log.Println(rowObject.HaID)
+		if rowObject.HaID != "" {
+
+		}
 		// now its time to do something with this object
 
 		// ...
 		lineCount += 1
 	}
+
+	// some output for cloudwatch
+	log.Printf("processed lines %s\n", lineCount)
+	log.Printf("finish processing %s\n", key)
 
 	return nil
 }
