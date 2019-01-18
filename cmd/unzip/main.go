@@ -113,9 +113,6 @@ func processS3Record(s3record events.S3EventRecord) error {
 		if record[0] != "" {
 
 		}
-		if lineCount%100 == 0 {
-			log.Print(".")
-		}
 		// now its time to do something with this object
 
 		// ...
