@@ -12,8 +12,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"io"
 	"log"
+	"path/filepath"
 	"strconv"
 )
+
+type RowObject struct {
+	HaID           string
+	StID           string
+	HaAdrNStrasse  string
+	HaAdrNHausnr   string
+	HaAdrNHausnrZu string
+	HaAdrNPLZ      string
+	HaAdrNOTLName  string
+	HaAdrNOrtsname string
+	HaKooKGenau    string
+}
 
 func main() {
 	iamlocal := false
@@ -45,8 +58,6 @@ func main() {
 }
 
 func HandleRequest(s3Event events.S3Event) error {
-	//pathIncoming := os.Getenv("S3_PATH_INCOMING")
-	//log.Println("S3_PATH_INCOMING", pathIncoming)
 	//pathUncompressed := os.Getenv("S3_PATH_UNCOMPRESSED")
 	//log.Println("S3_PATH_UNCOMPRESSED", pathUncompressed)
 	for _, s3record := range s3Event.Records {
@@ -54,7 +65,7 @@ func HandleRequest(s3Event events.S3Event) error {
 		if err != nil {
 			return fmt.Errorf("error while processing %s from S3: %s\n", s3record.S3.Object.Key, err)
 		}
-		err = deleteS3Record(s3record)
+		err = deleteObjectByRecord(s3record)
 		if err != nil {
 			return fmt.Errorf("error while deleting %s from S3: %s\n", s3record.S3.Object.Key, err)
 		}
@@ -66,30 +77,32 @@ func processS3Record(s3record events.S3EventRecord) error {
 	// some output for cloudwatch
 	log.Printf("START PROCESSING %s\n", s3record.S3.Object.Key)
 
-	// create s3service and session
-	svc := getS3Service(s3record.AWSRegion)
-
 	// get object from S3
-	obj, err := svc.GetObject(&s3.GetObjectInput{
-		Bucket: aws.String(s3record.S3.Bucket.Name),
-		Key:    aws.String(s3record.S3.Object.Key),
-	})
+	obj, err := getObjectByRecord(s3record)
 	if err != nil {
 		return fmt.Errorf("error while GetObject %s from S3: %s\n", s3record.S3.Object.Key, err)
 	}
 
-	gr, err := gzip.NewReader(obj.Body)
-	defer gr.Close()
-	if err != nil {
-		return fmt.Errorf("error while unzipping %s from S3: %s\n", s3record.S3.Object.Key, err)
+	// check if it is a *.gz or *.csv
+	extension := filepath.Ext(s3record.S3.Object.Key)
+	var inputContent io.Reader
+	if extension == "gz" {
+		gr, err := gzip.NewReader(obj.Body)
+		defer gr.Close()
+		if err != nil {
+			return fmt.Errorf("error while unzipping %s from S3: %s\n", s3record.S3.Object.Key, err)
+		}
+		inputContent = gr
+	} else {
+		inputContent = obj.Body
 	}
 
 	// build CSV reader
-	r := csv.NewReader(bufio.NewReader(gr))
+	r := csv.NewReader(bufio.NewReader(inputContent))
 	r.Comma = ';'
 	r.Comment = '#'
 
-	// go throug by lines
+	// go through by lines
 	lineCount := 0
 	for {
 		record, err := r.Read()
@@ -105,10 +118,9 @@ func processS3Record(s3record events.S3EventRecord) error {
 			continue
 		}
 		// generate object from record
-		//rowObject := generateRowObject(record)
-		//log.Println(rowObject.HaID)
-		//log.Println(record[0])
-		if record[0] != "" {
+		rowObject := generateRowObject(record)
+
+		if rowObject.HaID != "" {
 
 		}
 		// now its time to do something with this object
@@ -125,7 +137,22 @@ func processS3Record(s3record events.S3EventRecord) error {
 	return nil
 }
 
-func deleteS3Record(s3record events.S3EventRecord) error {
+func getS3Service(region string) *s3.S3 {
+	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(region)}))
+	svc := s3.New(sess)
+	return svc
+}
+
+func getObjectByRecord(s3record events.S3EventRecord) (*s3.GetObjectOutput, error) {
+	svc := getS3Service(s3record.AWSRegion)
+	obj, err := svc.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(s3record.S3.Bucket.Name),
+		Key:    aws.String(s3record.S3.Object.Key),
+	})
+	return obj, err
+}
+
+func deleteObjectByRecord(s3record events.S3EventRecord) error {
 	// create s3service and session
 	svc := getS3Service(s3record.AWSRegion)
 
@@ -140,8 +167,17 @@ func deleteS3Record(s3record events.S3EventRecord) error {
 	return nil
 }
 
-func getS3Service(region string) *s3.S3 {
-	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(region)}))
-	svc := s3.New(sess)
-	return svc
+func generateRowObject(record []string) RowObject {
+	rowObject := RowObject{
+		HaID:           record[0],
+		StID:           record[1],
+		HaAdrNStrasse:  record[2],
+		HaAdrNHausnr:   record[3],
+		HaAdrNHausnrZu: record[4],
+		HaAdrNPLZ:      record[5],
+		HaAdrNOTLName:  record[6],
+		HaAdrNOrtsname: record[7],
+		HaKooKGenau:    record[8],
+	}
+	return rowObject
 }
