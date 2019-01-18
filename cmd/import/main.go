@@ -94,11 +94,13 @@ func processS3Record(s3record events.S3EventRecord) error {
 		record, err := r.Read()
 		// Stop at EOF.
 		if err == io.EOF {
+			log.Println("End of File")
 			break
 		}
 		// drop first line because of header rows
 		if lineCount <= 0 {
 			lineCount += 1
+			log.Println("Skip header row")
 			continue
 		}
 		// generate object from record
