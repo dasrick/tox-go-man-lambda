@@ -65,7 +65,7 @@ func processS3Record(s3record events.S3EventRecord) error {
 	region := s3record.AWSRegion
 
 	// some output for cloudwatch
-	log.Printf("start processing %s\n", key)
+	log.Printf("START PROCESSING %s\n", key)
 
 	// create session
 	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(region)}))
@@ -81,10 +81,10 @@ func processS3Record(s3record events.S3EventRecord) error {
 	}
 
 	gr, err := gzip.NewReader(obj.Body)
+	defer gr.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer gr.Close()
 
 	// build CSV reader
 	r := csv.NewReader(bufio.NewReader(gr))
@@ -97,13 +97,13 @@ func processS3Record(s3record events.S3EventRecord) error {
 		record, err := r.Read()
 		// Stop at EOF.
 		if err == io.EOF {
-			log.Println("End of File")
+			log.Println("END of FILE")
 			break
 		}
 		// drop first line because of header rows
 		if lineCount <= 0 {
 			lineCount++
-			log.Println("Skip header row")
+			log.Println("SKIP HEADER ROW")
 			continue
 		}
 		// generate object from record
@@ -113,6 +113,9 @@ func processS3Record(s3record events.S3EventRecord) error {
 		if record[0] != "" {
 
 		}
+		if lineCount%100 == 0 {
+			log.Print(".")
+		}
 		// now its time to do something with this object
 
 		// ...
@@ -120,8 +123,8 @@ func processS3Record(s3record events.S3EventRecord) error {
 	}
 
 	// some output for cloudwatch
-	log.Printf("processed lines %s\n", strconv.Itoa(lineCount))
-	log.Printf("finish processing %s\n", key)
+	log.Printf("PROCESSED LINES %s\n", strconv.Itoa(lineCount))
+	log.Printf("FINISH PROCESSING %s\n", key)
 
 	return nil
 }
