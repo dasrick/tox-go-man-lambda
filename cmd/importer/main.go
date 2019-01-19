@@ -32,7 +32,7 @@ type RowObject struct {
 }
 
 func main() {
-	iamlocal := true
+	iamlocal := false
 
 	if !iamlocal {
 		lambda.Start(HandleRequest)
