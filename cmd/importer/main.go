@@ -46,7 +46,9 @@ func main() {
 					Arn:  "arn:aws:s3:::man-deveh-stash",
 				},
 				Object: events.S3Object{
-					Key: "incoming/Datei2_Haus_2018.csv.gz",
+					//Key: "incoming/Datei2_Haus_2018.csv.gz",
+					//Key: "uncompressed/Datei2_Haus_2018_short.csv",
+					Key: "uncompressed/Datei2_Haus_2018_short.csv.gz",
 				},
 			},
 		}
@@ -65,10 +67,10 @@ func HandleRequest(s3Event events.S3Event) error {
 		if err != nil {
 			return fmt.Errorf("error while processing %s from S3: %s\n", s3record.S3.Object.Key, err)
 		}
-		err = deleteObjectByRecord(s3record)
-		if err != nil {
-			return fmt.Errorf("error while deleting %s from S3: %s\n", s3record.S3.Object.Key, err)
-		}
+		//err = deleteObjectByRecord(s3record)
+		//if err != nil {
+		//	return fmt.Errorf("error while deleting %s from S3: %s\n", s3record.S3.Object.Key, err)
+		//}
 	}
 	return nil
 }
@@ -84,9 +86,8 @@ func processS3Record(s3record events.S3EventRecord) error {
 	}
 
 	// check if it is a *.gz or *.csv
-	extension := filepath.Ext(s3record.S3.Object.Key)
 	var inputContent io.Reader
-	if extension == "gz" {
+	if filepath.Ext(s3record.S3.Object.Key) == ".gz" {
 		gr, err := gzip.NewReader(obj.Body)
 		defer gr.Close()
 		if err != nil {
@@ -119,7 +120,6 @@ func processS3Record(s3record events.S3EventRecord) error {
 		}
 		// generate object from record
 		rowObject := generateRowObject(record)
-
 		if rowObject.HaID != "" {
 
 		}
