@@ -15,7 +15,7 @@
   version = "v1.8.1"
 
 [[projects]]
-  digest = "1:ff5b7c3aecdc489345eedf7be49c3879ff19296c20f830acd8ed4ded094e1ec1"
+  digest = "1:6d96178f2a3c62aaf0dcc4dd91d323e70e7c5bcabd0dcd2c4463e483411cf72a"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -51,6 +51,7 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/s3",
+    "service/sns",
     "service/sts",
   ]
   pruneopts = "UT"
@@ -73,6 +74,7 @@
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/aws/aws-sdk-go/service/sns",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

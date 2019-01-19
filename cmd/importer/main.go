@@ -4,14 +4,17 @@ import (
 	"bufio"
 	"compress/gzip"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/sns"
 	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -29,11 +32,15 @@ type RowObject struct {
 }
 
 func main() {
-	iamlocal := false
+	iamlocal := true
 
 	if !iamlocal {
 		lambda.Start(HandleRequest)
 	} else {
+		err := os.Setenv("SNS_TOPIC_ARN", "arn:aws:sns:eu-west-1:973497026170:man-deveh-address-import-topic")
+		if err != nil {
+			log.Panicf("ein lustiger fehler:\n %s\n", err)
+		}
 		testRecord := events.S3EventRecord{
 			EventVersion: "2.0",
 			EventSource:  "aws:s3",
@@ -47,12 +54,12 @@ func main() {
 				},
 				Object: events.S3Object{
 					//Key: "incoming/Datei2_Haus_2018.csv.gz",
-					//Key: "uncompressed/Datei2_Haus_2018_short.csv",
-					Key: "uncompressed/Datei2_Haus_2018_short.csv.gz",
+					//Key: "Datei2_Haus_2018_short.csv",
+					Key: "Datei2_Haus_2018_short.csv.gz",
 				},
 			},
 		}
-		err := HandleRequest(events.S3Event{Records: []events.S3EventRecord{testRecord}})
+		err = HandleRequest(events.S3Event{Records: []events.S3EventRecord{testRecord}})
 		if err != nil {
 			log.Panicf("ein lustiger fehler:\n %s\n", err)
 		}
@@ -67,10 +74,10 @@ func HandleRequest(s3Event events.S3Event) error {
 		if err != nil {
 			return fmt.Errorf("error while processing %s from S3: %s\n", s3record.S3.Object.Key, err)
 		}
-		//err = deleteObjectByRecord(s3record)
-		//if err != nil {
-		//	return fmt.Errorf("error while deleting %s from S3: %s\n", s3record.S3.Object.Key, err)
-		//}
+		err = deleteObjectByRecord(s3record)
+		if err != nil {
+			return fmt.Errorf("error while deleting %s from S3: %s\n", s3record.S3.Object.Key, err)
+		}
 	}
 	return nil
 }
@@ -119,12 +126,17 @@ func processS3Record(s3record events.S3EventRecord) error {
 			continue
 		}
 		// generate object from record
-		rowObject := generateRowObject(record)
-		if rowObject.HaID != "" {
-
-		}
+		//rowObject := generateRowObject(record)
+		//if rowObject.HaID != "" {
+		//
+		//}
 		// now its time to do something with this object
 		// a good idea would be a SNS event
+		_, err = publishByRecord(s3record, record)
+		if err != nil {
+			return fmt.Errorf("error while publishing record to SNS: %s\n", err)
+		}
+		//log.Println(resp)
 
 		// ...
 		lineCount++
@@ -165,6 +177,28 @@ func deleteObjectByRecord(s3record events.S3EventRecord) error {
 		return err
 	}
 	return nil
+}
+
+func getSNSService(region string) *sns.SNS {
+	sess := session.Must(session.NewSession(&aws.Config{Region: aws.String(region)}))
+	svc := sns.New(sess)
+	return svc
+}
+
+func publishByRecord(s3record events.S3EventRecord, row []string) (*sns.PublishOutput, error) {
+	rowObject := generateRowObject(row)
+	rowJSON, err := json.Marshal(rowObject)
+	if err != nil {
+		return nil, fmt.Errorf("error while json.Marshal %s : %s\n", s3record.S3.Object.Key, err)
+	}
+	// create s3service and session
+	svc := getSNSService(s3record.AWSRegion)
+	params := &sns.PublishInput{
+		Message:  aws.String(string(rowJSON)), // This is the message itself (can be XML / JSON / Text - anything you want)
+		TopicArn: aws.String(os.Getenv("SNS_TOPIC_ARN")),
+	}
+	resp, err := svc.Publish(params)
+	return resp, err
 }
 
 func generateRowObject(record []string) RowObject {
