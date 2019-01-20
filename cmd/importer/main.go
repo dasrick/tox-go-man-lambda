@@ -67,8 +67,6 @@ func main() {
 }
 
 func HandleRequest(s3Event events.S3Event) error {
-	//pathUncompressed := os.Getenv("S3_PATH_UNCOMPRESSED")
-	//log.Println("S3_PATH_UNCOMPRESSED", pathUncompressed)
 	for _, s3record := range s3Event.Records {
 		err := processS3Record(s3record)
 		if err != nil {
