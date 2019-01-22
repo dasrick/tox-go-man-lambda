@@ -75,10 +75,14 @@ func HandleRequest(snsEvent events.SNSEvent) error {
 
 func processSNSRecord(snsRecord events.SNSEventRecord) error {
 	// serialize JSON string (Message)
+	log.Println("MESSAGE:", snsRecord.SNS.Message)
+
 	incomingObject, err := getIncomingObjectFromString(snsRecord.SNS.Message)
 	if err != nil {
 		return err
 	}
+
+	log.Println("OBJECT:", incomingObject)
 
 	err = processSource(incomingObject)
 	if err != nil {
@@ -130,9 +134,9 @@ func processSource(incomingObject *IncomingObject) error {
 func getIncomingObjectFromString(jsonString string) (*IncomingObject, error) {
 	incomingObject := &IncomingObject{}
 	err := json.Unmarshal([]byte(jsonString), incomingObject)
-	if err != nil {
-		log.Printf("error unmarshal %s from SNS: %s\n", jsonString, err)
-	}
+	//if err != nil {
+	//	log.Printf("error unmarshal %s from SNS: %s\n", jsonString, err)
+	//}
 	return incomingObject, err
 }
 
