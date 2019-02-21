@@ -15,7 +15,7 @@
   version = "v1.8.1"
 
 [[projects]]
-  digest = "1:c8591f747a968753cbbc4104f9adcc8bb9fa8cefb60d90a77a462dd8d5b82c6a"
+  digest = "1:83150c434ab75e7048ed9c66a34d5cb60e016238a6dc1ac932b5d8f5931e2062"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -29,6 +29,7 @@
     "aws/credentials/endpointcreds",
     "aws/credentials/processcreds",
     "aws/credentials/stscreds",
+    "aws/crr",
     "aws/csm",
     "aws/defaults",
     "aws/ec2metadata",
@@ -45,11 +46,15 @@
     "private/protocol",
     "private/protocol/eventstream",
     "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
+    "service/dynamodb",
+    "service/dynamodb/dynamodbattribute",
     "service/s3",
     "service/sns",
     "service/sts",
@@ -57,6 +62,14 @@
   pruneopts = "UT"
   revision = "c1afd6c3340feedd0a2c1cd929dcb291d4bd09ba"
   version = "v1.16.23"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ecab228c5fa31ed854b95ed6402effaa740bbed61fd60abd432f7be2cb4c4708"
+  name = "github.com/dasrick/aws-helper-go"
+  packages = ["kvdynamodb"]
+  pruneopts = "UT"
+  revision = "cc066edc3057c2a08e584f373760cce63964692e"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -99,6 +112,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/aws/aws-sdk-go/service/sns",
+    "github.com/dasrick/aws-helper-go/kvdynamodb",
     "github.com/stretchr/testify/assert",
   ]
   solver-name = "gps-cdcl"

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"aws-helper-go/kvdynamodb"
 	"encoding/json"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/dasrick/aws-helper-go/kvdynamodb"
 	"os"
 	"tox-go-man-lambda/internal/pkg/micron"
 )
