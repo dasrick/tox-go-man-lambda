@@ -13,21 +13,10 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"tox-go-man-lambda/internal/pkg/micron"
 	"tox-go-man-lambda/internal/pkg/s3client"
 	"tox-go-man-lambda/internal/pkg/snsclient"
 )
-
-type RowObject struct {
-	HaID           string
-	StID           string
-	HaAdrNStrasse  string
-	HaAdrNHausnr   string
-	HaAdrNHausnrZu string
-	HaAdrNPLZ      string
-	HaAdrNOTLName  string
-	HaAdrNOrtsname string
-	HaKooKGenau    string
-}
 
 func HandleRequest(s3Event events.S3Event) error {
 	for _, s3Record := range s3Event.Records {
@@ -124,8 +113,8 @@ func main() {
 	lambda.Start(HandleRequest)
 }
 
-func generateRowObject(record []string) RowObject {
-	rowObject := RowObject{
+func generateRowObject(record []string) micron.CsvObject {
+	return micron.CsvObject{
 		HaID:           record[0],
 		StID:           record[1],
 		HaAdrNStrasse:  record[2],
@@ -136,5 +125,4 @@ func generateRowObject(record []string) RowObject {
 		HaAdrNOrtsname: record[7],
 		HaKooKGenau:    record[8],
 	}
-	return rowObject
 }
