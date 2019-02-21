@@ -15,7 +15,7 @@
   version = "v1.8.1"
 
 [[projects]]
-  digest = "1:5533b25c156334d79666932422653236f14d181d7336f2589884c36af2ae7701"
+  digest = "1:83150c434ab75e7048ed9c66a34d5cb60e016238a6dc1ac932b5d8f5931e2062"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -60,8 +60,24 @@
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "a0a1669c06da522317116cc7624ac257d9c5fdfd"
-  version = "v1.16.21"
+  revision = "c1afd6c3340feedd0a2c1cd929dcb291d4bd09ba"
+  version = "v1.16.23"
+
+[[projects]]
+  branch = "master"
+  digest = "1:ecab228c5fa31ed854b95ed6402effaa740bbed61fd60abd432f7be2cb4c4708"
+  name = "github.com/dasrick/aws-helper-go"
+  packages = ["kvdynamodb"]
+  pruneopts = "UT"
+  revision = "cc066edc3057c2a08e584f373760cce63964692e"
+
+[[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = "UT"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:bb81097a5b62634f3e9fec1014657855610c82d19b9a40c17612e32651e35dca"
@@ -70,6 +86,22 @@
   pruneopts = "UT"
   revision = "c2b33e84"
 
+[[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -77,12 +109,11 @@
     "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/aws/aws-sdk-go/aws",
-    "github.com/aws/aws-sdk-go/aws/awserr",
     "github.com/aws/aws-sdk-go/aws/session",
-    "github.com/aws/aws-sdk-go/service/dynamodb",
-    "github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/aws/aws-sdk-go/service/sns",
+    "github.com/dasrick/aws-helper-go/kvdynamodb",
+    "github.com/stretchr/testify/assert",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
